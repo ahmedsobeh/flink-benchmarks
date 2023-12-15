@@ -34,7 +34,7 @@ import java.util.Scanner;
  * either enabled or disabled. Next, prints the number of requests to the
  * Kubernetes API server.
  *
- * The only requirements for running are Docker and minikube.
+ * The only requirements for running are Docker,minikube and copying a recent flink build jars to kubernetes/lib.
  */
 public class KubernetesCheckpointingBenchmark extends BenchmarkBase {
 	public static void main(String[] args) throws RunnerException, IOException {
