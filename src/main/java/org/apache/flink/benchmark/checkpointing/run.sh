@@ -29,7 +29,7 @@
     fi
     ./src/main/java/org/apache/flink/benchmark/checkpointing/kubernetes-session.sh -Dkubernetes.cluster-id=checkpointing-load-test
     echo "creating pod.."
-    sleep 90
+    sleep 100
     echo "starting to copy jar.."
     pod=$(kubectl get pods  | head -n2 | awk '{print $1;}' | sed -n '2 p')
     kubectl cp src/main/java/org/apache/flink/benchmark/checkpointing/kubernetes/lib/$JAR_FILE default/$pod:/opt/flink/
@@ -37,6 +37,7 @@
     echo "Job running.."
     echo "Creating tunnel to Prometheus.."
     (minikube service prometheus-server-np --url | tee src/main/java/org/apache/flink/benchmark/checkpointing/prom_ip.txt) &
+    trap 'pkill -P $$  && exit' SIGINT
     sleep 5
     echo "Waiting for metrics to be available.."
     sleep 90
