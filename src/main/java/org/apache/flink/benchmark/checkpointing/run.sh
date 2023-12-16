@@ -35,16 +35,16 @@
     kubectl cp src/main/java/org/apache/flink/benchmark/checkpointing/kubernetes/lib/$JAR_FILE default/$pod:/opt/flink/
     (kubectl exec -it pod/$pod -- bash -c "./bin/flink run --target kubernetes-session -Dkubernetes.cluster-id=checkpointing-load-test $JAR_FILE")  & sleep 15 ; kill $!
     echo "Job running.."
-    echo "starting Prometheus server.."
+    echo "Creating tunnel to Prometheus.."
     (minikube service prometheus-server-np --url | tee src/main/java/org/apache/flink/benchmark/checkpointing/prom_ip.txt) &
     sleep 5
-    trap 'rm -r src/main/java/org/apache/flink/benchmark/checkpointing/prom_ip.txt  && exit' SIGINT
-    echo "waiting for metrics to be available.."
+    echo "Waiting for metrics to be available.."
     sleep 90
-    echo "printing kubernetes server request load.."
+    echo "Printing kubernetes server request load.."
+    ip=$(head -n 1 src/main/java/org/apache/flink/benchmark/checkpointing/prom_ip.txt)
+    rm -r src/main/java/org/apache/flink/benchmark/checkpointing/prom_ip.txt
     while true
     do
       sleep 2
-      ip=$(head -n 1 src/main/java/org/apache/flink/benchmark/checkpointing/prom_ip.txt)
       ./src/main/java/org/apache/flink/benchmark/checkpointing/kubernetes/lib/promql --host "$ip" 'sum(rate(apiserver_request_total[5m])) by (job)' | sed -n '2 p'
     done
